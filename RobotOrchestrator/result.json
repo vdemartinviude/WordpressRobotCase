@@ -1,0 +1,16 @@
+{
+  "Messages": [
+    {
+      "topic": "StartTime",
+      "message": "Robot starting working at 2023-02-14 13:36:50"
+    },
+    {
+      "topic": "Error",
+      "message": "The robot can not execute because a login error ocorred"
+    },
+    {
+      "topic": "EndTime",
+      "message": "The robot has ended working at 2023-02-14 13:37:30"
+    }
+  ]
+}

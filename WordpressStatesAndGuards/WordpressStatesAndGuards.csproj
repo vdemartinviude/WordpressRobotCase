@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Selenium.Support" Version="4.8.1" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.8.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\WebBotFramework\JsonDocumentsManager\JsonDocumentsManager.csproj" />
+    <ProjectReference Include="..\..\WebBotFramework\StatesAndEvents\StatesAndEvents.csproj" />
+  </ItemGroup>
+
+</Project>
