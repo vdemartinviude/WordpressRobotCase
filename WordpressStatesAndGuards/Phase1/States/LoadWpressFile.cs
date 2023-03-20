@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 using TheRobot.Response;
 
@@ -16,54 +17,57 @@ public class LoadWpressFile : BaseState
 {
     public override TimeSpan StateTimeout => TimeSpan.FromMinutes(60);
 
-    public LoadWpressFile(Robot robot, InputJsonDocument inputdata, ResultJsonDocument resultJson) : base("LoadWpressFile", robot, inputdata, resultJson)
+    public LoadWpressFile(StateInfrastructure stateInfrastructure) : base("LoadWpressFile", stateInfrastructure)
     {
     }
 
     public override async Task Execute(CancellationToken token)
     {
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.XPath("//div[contains(@class,'wp-menu-name') and contains(text(),'All-in-One WP Migration')]")
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//div[contains(@class,'wp-menu-name') and contains(text(),'All-in-One WP Migration')]")) },
+            Kind = KindOfClik.ClickByDriver
+        }, token);
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.XPath("//a[contains(text(),'Importar') and contains(@href,'wm_import')]")
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//a[contains(text(),'Importar') and contains(@href,'wm_import')]")) },
+            Kind = KindOfClik.ClickByDriver
+        }, token);
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.XPath("//div[contains(@class,'button-main')]")
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//div[contains(@class,'button-main')]")) },
+            Kind = KindOfClik.ClickByDriver
+        }, token);
 
-        await _robot.Execute(new UploadFileByInputSelectRequest
-        {
-            InputSelectBy = By.Id("ai1wm-select-file"),
-            FilePath = _inputData.GetStringData("$.WpressFilePath")
-        });
+        //await _robot.Execute(new UploadFileByInputSelectRequest
+        //{
+        //    InputSelectBy = By.Id("ai1wm-select-file"),
+        //    FilePath = _inputData.GetStringData("$.WpressFilePath")
+        //});
 
-        RobotResponse resp;
-        resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
-        {
-            By = By.XPath("//button[contains(text(),'Continuar') and @class='ai1wm-button-green']"),
-            CancellationToken = token
-        });
+        //RobotResponse resp;
+        //resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
+        //{
+        //    By = By.XPath("//button[contains(text(),'Continuar') and @class='ai1wm-button-green']"),
+        //    CancellationToken = token
+        //});
 
-        resp.WebElement!.Click();
+        //resp.WebElement!.Click();
 
-        await _robot.Execute(new WaitElementExistsOrVanishRequest
-        {
-            By = By.XPath("//p[contains(text(),'Restaurando')]"),
-            CancellationToken = token
-        });
+        //await _robot.Execute(new WaitElementExistsOrVanishRequest
+        //{
+        //    By = By.XPath("//p[contains(text(),'Restaurando')]"),
+        //    CancellationToken = token
+        //});
 
-        resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
-        {
-            By = By.XPath("//button[contains(text(),'Finalizar')]"),
-            CancellationToken = token
-        });
+        //resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
+        //{
+        //    By = By.XPath("//button[contains(text(),'Finalizar')]"),
+        //    CancellationToken = token
+        //});
 
-        resp.WebElement!.Click();
+        //resp.WebElement!.Click();
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 using WordpressStatesAndGuards.States;
 
@@ -15,9 +16,13 @@ public class WpAlreadyConfiguredGuard : IGuard<NavigationStart, NavigateToLogin>
 {
     public uint Priority => 10;
 
-    public bool Condition(Robot robot)
+    public async Task<bool> Condition(Robot robot, CancellationToken token)
     {
-        var resp = robot.Execute(new IsPageLoadedRequest()).Result;
-        return resp.Status == TheRobot.Response.RobotResponseStatus.ActionRealizedOk;
+        var result = await robot.Execute(new MediatedElementExistsRequest
+        {
+            BaseParameters = new() { ByOrElement = new(By.XPath("//body")) }
+        }, token);
+
+        return result.Match(x => false, x => true);
     }
 }

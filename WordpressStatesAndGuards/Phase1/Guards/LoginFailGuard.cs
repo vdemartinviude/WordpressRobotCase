@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 using WordpressStatesAndGuards.States;
 
@@ -16,16 +17,12 @@ public class LoginFailGuard : IGuard<WPLogin, StopRobotLoginError>
 {
     public uint Priority => 5;
 
-    public bool Condition(Robot robot)
+    public async Task<bool> Condition(Robot robot, CancellationToken token)
     {
-        var response = robot.Execute(new ElementExistRequest
+        var response = await robot.Execute(new MediatedElementExistsRequest
         {
-            By = By.XPath("//div[@id='login_error']")
-        }).Result;
-        if (response.Status == TheRobot.Response.RobotResponseStatus.ActionRealizedOk && response.WebElement!.Displayed)
-        {
-            return true;
-        }
-        return false;
+            BaseParameters = new() { ByOrElement = new(By.XPath("//div[@id='login_error']")) }
+        }, token);
+        return response.Match(_ => false, _ => true);
     }
 }
