@@ -1,4 +1,5 @@
 ﻿using JsonDocumentsManager;
+using Microsoft.AspNetCore.Components.Forms;
 using OpenQA.Selenium;
 using StatesAndEvents;
 using System;
@@ -41,11 +42,11 @@ public class LoadWpressFile : BaseState
             Kind = KindOfClik.ClickByDriver
         }, token);
 
-        //await _robot.Execute(new UploadFileByInputSelectRequest
-        //{
-        //    InputSelectBy = By.Id("ai1wm-select-file"),
-        //    FilePath = _inputData.GetStringData("$.WpressFilePath")
-        //});
+        await _stateInfra.Robot.Execute(new MediatedUploadFileBySelectRequest
+        {
+            BaseParameters = new() { ByOrElement = new(By.Id("ai1wm-select-file")) },
+            FilePath = _stateInfra.InputJsonDocument.GetStringData("$.WpressFilePath")
+        }, token);
 
         //RobotResponse resp;
         //resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
