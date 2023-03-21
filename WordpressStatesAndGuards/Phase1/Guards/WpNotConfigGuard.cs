@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 using WordpressStatesAndGuards.States;
 
@@ -15,17 +16,12 @@ public class WpNotConfigGuard : IGuard<NavigationStart, WPInitialConfiguration>
 {
     public uint Priority => 5;
 
-    public bool Condition(Robot robot)
+    public async Task<bool> Condition(Robot robot, CancellationToken token)
     {
-        var languageSelectExist = robot.Execute(new ElementExistRequest
+        var languageSelectExit = await robot.Execute(new MediatedElementExistsRequest
         {
-            By = By.Id("language"),
-            Timeout = TimeSpan.FromSeconds(5)
-        }).Result;
-        if (languageSelectExist.Status == TheRobot.Response.RobotResponseStatus.ActionRealizedOk)
-        {
-            return true;
-        }
-        return false;
+            BaseParameters = new() { ByOrElement = new(By.Id("language")), TimeOut = TimeSpan.FromSeconds(5) }
+        }, token);
+        return languageSelectExit.IsT1;
     }
 }

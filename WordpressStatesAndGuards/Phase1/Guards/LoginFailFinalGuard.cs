@@ -11,8 +11,8 @@ namespace WordpressStatesAndGuards.Guards;
 
 public class LoginFailFinalGuard : IGuard<StopRobotLoginError>
 {
-    public bool Condition(Robot robot)
+    public async Task<bool> Condition(Robot robot, CancellationToken token)
     {
-        throw new NotImplementedException();
+        return await Task.Run(() => { return true; });
     }
 }

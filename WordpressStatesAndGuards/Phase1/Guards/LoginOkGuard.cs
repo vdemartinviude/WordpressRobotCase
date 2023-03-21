@@ -13,8 +13,8 @@ public class LoginOkGuard : IGuard<WPLogin, VerifyPluginAllInOneInstall>
 {
     public uint Priority => 20;
 
-    public bool Condition(Robot robot)
+    public async Task<bool> Condition(Robot robot, CancellationToken token)
     {
-        return true;
+        return await Task.Run(() => { return true; });
     }
 }

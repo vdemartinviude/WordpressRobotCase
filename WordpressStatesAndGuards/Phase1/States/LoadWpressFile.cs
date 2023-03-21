@@ -48,27 +48,31 @@ public class LoadWpressFile : BaseState
             FilePath = _stateInfra.InputJsonDocument.GetStringData("$.WpressFilePath")
         }, token);
 
-        //RobotResponse resp;
-        //resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
-        //{
-        //    By = By.XPath("//button[contains(text(),'Continuar') and @class='ai1wm-button-green']"),
-        //    CancellationToken = token
-        //});
+        var resp = await _stateInfra.Robot.Execute(new MediatedWaitElementExistOrVanish
+        {
+            BaseParameters = new() { ByOrElement = new(By.XPath("//button[contains(text(),'Continuar') and @class='ai1wm-button-green']")), TimeOut = TimeSpan.FromSeconds(1800) }
+        }, token);
 
-        //resp.WebElement!.Click();
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
+        {
+            BaseParameters = new() { ByOrElement = new((WebElement)resp.AsT1.WebElement) },
+            Kind = KindOfClik.ClickByDriver
+        }, token);
 
-        //await _robot.Execute(new WaitElementExistsOrVanishRequest
-        //{
-        //    By = By.XPath("//p[contains(text(),'Restaurando')]"),
-        //    CancellationToken = token
-        //});
+        await _stateInfra.Robot.Execute(new MediatedWaitElementExistOrVanish
+        {
+            BaseParameters = new() { ByOrElement = new(By.XPath("//p[contains(text(),'Restaurando')]")), TimeOut = TimeSpan.FromSeconds(1800) }
+        }, token);
 
-        //resp = await _robot.Execute(new WaitElementExistsOrVanishRequest
-        //{
-        //    By = By.XPath("//button[contains(text(),'Finalizar')]"),
-        //    CancellationToken = token
-        //});
+        var resp2 = await _stateInfra.Robot.Execute(new MediatedWaitElementExistOrVanish
+        {
+            BaseParameters = new() { ByOrElement = new(By.XPath("//button[contains(text(),'Finalizar')]")), TimeOut = TimeSpan.FromSeconds(1800) }
+        }, token);
 
-        //resp.WebElement!.Click();
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
+        {
+            BaseParameters = new() { ByOrElement = new((WebElement)resp2.AsT1.WebElement) },
+            Kind = KindOfClik.ClickByDriver
+        }, token);
     }
 }

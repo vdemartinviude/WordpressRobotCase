@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 
 namespace WordpressStatesAndGuards.States;
@@ -15,17 +16,17 @@ public class NavigationStart : BaseState
 {
     public override TimeSpan StateTimeout => TimeSpan.FromSeconds(60);
 
-    public NavigationStart(Robot robot, InputJsonDocument inputdata, ResultJsonDocument resultJson) : base("NavigationStart", robot, inputdata, resultJson)
+    public NavigationStart(StateInfrastructure infrastructure) : base("NavigationStart", infrastructure)
     {
     }
 
     public override async Task Execute(CancellationToken token)
     {
-        _results.AddResultMessage("StartTime", $"Robot start working at {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
-        await _robot.Execute(new NavigationRequest
+        _stateInfra.ResultJsonDocument.AddResultMessage("StartTime", $"Robot start working at {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+        await _stateInfra.Robot.Execute(new MediatedNavigationRequest
         {
-            Timeout = TimeSpan.FromSeconds(5),
-            Url = _inputData.GetStringData("$.Url")
-        });
+            BaseParameters = new() { TimeOut = TimeSpan.FromSeconds(10) },
+            Url = _stateInfra.InputJsonDocument.GetStringData("$.Url")
+        }, token);
     }
 }

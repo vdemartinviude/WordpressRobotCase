@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 using TheRobot.Response;
 
@@ -16,51 +17,54 @@ public class VerifyPluginAllInOneInstall : BaseState
 {
     public override TimeSpan StateTimeout => TimeSpan.FromMinutes(60);
 
-    public VerifyPluginAllInOneInstall(Robot robot, InputJsonDocument inputdata, ResultJsonDocument resultJson) : base("PluginAllInOneInstall", robot, inputdata, resultJson)
+    public VerifyPluginAllInOneInstall(StateInfrastructure infrastructure) : base("PluginAllInOneInstall", infrastructure)
     {
     }
 
     public override async Task Execute(CancellationToken token)
     {
-        var pluginalreadyinstalled = await _robot.Execute(new ElementExistRequest
+        var pluginalreadyinstalled = await _stateInfra.Robot.Execute(new MediatedElementExistsRequest()
         {
-            By = By.XPath("//div[contains(@class,'wp-menu-name') and contains(text(),'All-in-One WP Migration')]"),
-            Timeout = TimeSpan.FromSeconds(2)
-        });
-        if (pluginalreadyinstalled.Status == RobotResponseStatus.ActionRealizedOk)
+            BaseParameters = new()
+            {
+                ByOrElement = new(By.XPath("//div[contains(@class,'wp-menu-name') and contains(text(),'All-in-One WP Migration')]")),
+                TimeOut = TimeSpan.FromSeconds(2)
+            }
+        }, token);
+
+        if (pluginalreadyinstalled.IsT1)
         {
             return;
         }
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.XPath("//div[contains(text(),'Plugins')]"),
-            DelayAfter = TimeSpan.FromSeconds(3)
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//div[contains(text(),'Plugins')]")), DelayAfter = TimeSpan.FromSeconds(3) }
+        }, token);
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.XPath("//a[contains(text(),'Adicionar novo') and contains(@class,'page-title-action')]")
-        });
-        await _robot.Execute(new SetTextRequest
-        {
-            By = By.XPath("//input[@id='search-plugins']"),
-            Text = "All-in-one WP Migration",
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//a[contains(text(),'Adicionar novo') and contains(@class,'page-title-action')]")) }
+        }, token);
 
-        RobotResponse buttonInstall = await _robot.Execute(new WaitElementExistsOrVanishRequest
+        await _stateInfra.Robot.Execute(new MediatedSetTextRequest
         {
-            CancellationToken = token,
-            By = By.XPath("//a[contains(@class,'install-now button') and contains(@data-name,'All-in-One')]"),
-        });
-        buttonInstall.WebElement!.Click();
-
-        RobotResponse buttonAtivar = await _robot.Execute(new WaitElementExistsOrVanishRequest
+            BaseParameters = new() { ByOrElement = new(By.XPath("//a[contains(text(),'Adicionar novo') and contains(@class,'page-title-action')]")) },
+            TextToSet = "All-in-one WP Migration",
+            KindOfSetText = KindOfSetText.SetByWebDriver
+        }, token);
+        var buttonInstall = await _stateInfra.Robot.Execute(new MediatedWaitElementExistOrVanish
         {
-            CancellationToken = token,
-            By = By.XPath("//a[contains(text(),'Ativar') and contains(@data-name,'All-in-One')]"),
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//a[contains(@class,'install-now button') and contains(@data-name,'All-in-One')]")), TimeOut = TimeSpan.FromSeconds(1800) }
+        }, token);
 
-        buttonAtivar.WebElement!.Click();
+        buttonInstall.AsT1.WebElement.Click();
+
+        var buttonAtivar = await _stateInfra.Robot.Execute(new MediatedWaitElementExistOrVanish
+        {
+            BaseParameters = new() { ByOrElement = new(By.XPath("//a[contains(text(),'Ativar') and contains(@data-name,'All-in-One')]")), TimeOut = TimeSpan.FromSeconds(1800) }
+        }, token);
+
+        buttonAtivar.AsT1.WebElement.Click();
     }
 }

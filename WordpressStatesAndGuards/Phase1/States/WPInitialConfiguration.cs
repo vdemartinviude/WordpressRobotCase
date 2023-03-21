@@ -1,4 +1,5 @@
 ﻿using JsonDocumentsManager;
+using Microsoft.AspNetCore.Components.Forms;
 using OpenQA.Selenium;
 using StatesAndEvents;
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheRobot;
+using TheRobot.MediatedRequests;
 using TheRobot.Requests;
 
 namespace WordpressStatesAndGuards.States;
@@ -15,57 +17,60 @@ public class WPInitialConfiguration : BaseState
 {
     public override TimeSpan StateTimeout => TimeSpan.FromMinutes(10);
 
-    public WPInitialConfiguration(Robot robot, InputJsonDocument inputdata, ResultJsonDocument resultJson) : base("WPInitialConfiguration", robot, inputdata, resultJson)
+    public WPInitialConfiguration(StateInfrastructure infrastructure) : base("WPInitialConfiguration", infrastructure)
     {
     }
 
     public override async Task Execute(CancellationToken token)
     {
-        await _robot.Execute(new SelectTextRequest
+        await _stateInfra.Robot.Execute(new MediatedSelectRequest
         {
-            By = By.Id("language"),
-            Timeout = TimeSpan.FromSeconds(5),
-            Text = String.IsNullOrEmpty(_inputData.GetStringData("$.Language")) ? "Português do Brasil" : _inputData.GetStringData("$.Language")
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("language")) },
+            Text = String.IsNullOrEmpty(_stateInfra.InputJsonDocument.GetStringData("$.Language")) ? "Português do Brasil" : _stateInfra.InputJsonDocument.GetStringData("$.Language"),
+            KindOfSelect = KindOfSelect.SelectByDriveByText
+        }, token);
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.Id("language-continue"),
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("language-continue")) }
+        }, token);
 
-        await _robot.Execute(new SetTextRequest
+        await _stateInfra.Robot.Execute(new MediatedSetTextRequest
         {
-            By = By.Id("weblog_title"),
-            Text = _inputData.GetStringData("$.Title")
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("weblog_title")) },
+            KindOfSetText = KindOfSetText.SetByWebDriver,
+            TextToSet = _stateInfra.InputJsonDocument.GetStringData("$.Title")
+        }, token);
 
-        await _robot.Execute(new SetTextRequest
+        await _stateInfra.Robot.Execute(new MediatedSetTextRequest
         {
-            By = By.Id("user_login"),
-            Text = _inputData.GetStringData("$.UserLogin")
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("user_login")) },
+            KindOfSetText = KindOfSetText.SetByWebDriver,
+            TextToSet = _stateInfra.InputJsonDocument.GetStringData("$.UserLogin")
+        }, token);
 
-        await _robot.Execute(new SetTextRequest
+        await _stateInfra.Robot.Execute(new MediatedSetTextRequest
         {
-            By = By.Id("pass1"),
-            Text = _inputData.GetStringData("$.Password"),
-            ClearBefore = true,
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("pass1")) },
+            KindOfSetText = KindOfSetText.SetByWebDriver,
+            TextToSet = _stateInfra.InputJsonDocument.GetStringData("$.Password")
+        }, token);
 
-        await _robot.Execute(new SetTextRequest
+        await _stateInfra.Robot.Execute(new MediatedSetTextRequest
         {
-            By = By.Id("admin_email"),
-            Text = _inputData.GetStringData("$.Email")
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("admin_email")) },
+            KindOfSetText = KindOfSetText.SetByWebDriver,
+            TextToSet = _stateInfra.InputJsonDocument.GetStringData("$.Email")
+        }, token);
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.Id("submit")
-        });
+            BaseParameters = new() { ByOrElement = new(By.Id("submit")) }
+        }, token);
 
-        await _robot.Execute(new ClickRequest
+        await _stateInfra.Robot.Execute(new MediatedClickRequest
         {
-            By = By.XPath("//a[1]")
-        });
+            BaseParameters = new() { ByOrElement = new(By.XPath("//a[1]")) }
+        }, token);
     }
 }

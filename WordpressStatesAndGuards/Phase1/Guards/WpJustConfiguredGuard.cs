@@ -13,8 +13,8 @@ public class WpJustConfiguredGuard : IGuard<WPInitialConfiguration, WPLogin>
 {
     public uint Priority => 10;
 
-    public bool Condition(Robot robot)
+    public async Task<bool> Condition(Robot robot, CancellationToken token)
     {
-        return true;
+        return await Task.Run(() => { return true; });
     }
 }

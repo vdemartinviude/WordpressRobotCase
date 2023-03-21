@@ -1,7 +1,10 @@
 using JsonDocumentsManager;
+using MediatR;
 using StateExecute;
 using System.Reflection;
 using TheRobot;
+using TheRobot.DriverService;
+using TheRobot.PipelineExceptionHandler;
 using TheStateMachine;
 using TheStateMachine.Helpers;
 
@@ -15,6 +18,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton(x => TheStateMachineHelpers.GetMachineSpecification(Assembly.Load("WordpressStatesAndGuards")));
         services.AddSingleton<TheMachine>();
         services.AddHostedService<Worker>();
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.Load("TheRobot")));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(MediatorPipelineBehavior<,>));
+        services.AddSingleton<WebDriverService>();
     })
     .Build();
 
