@@ -49,7 +49,7 @@ public class VerifyPluginAllInOneInstall : BaseState
 
         await _stateInfra.Robot.Execute(new MediatedSetTextRequest
         {
-            BaseParameters = new() { ByOrElement = new(By.XPath("//a[contains(text(),'Adicionar novo') and contains(@class,'page-title-action')]")) },
+            BaseParameters = new() { ByOrElement = new(By.Id("search-plugins")) },
             TextToSet = "All-in-one WP Migration",
             KindOfSetText = KindOfSetText.SetByWebDriver
         }, token);
